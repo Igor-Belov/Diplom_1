@@ -7,11 +7,11 @@ import static org.junit.Assert.*;
 
 public class BunTest {
     private Bun bun;
-    private final String name = "Тестовый хлеб";
-    private final float price = 3.14f;
+    private final String name = "Тестовое имя хлеба";
+    private final float price = 3.141592f;
 
     @Before
-    public void before() {
+    public void setUp() {
         bun = new Bun(name, price);
     }
 

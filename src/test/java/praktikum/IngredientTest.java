@@ -10,11 +10,11 @@ public class IngredientTest {
     Ingredient ingredient;
     private String name = "Тестовое имя ингредиента";
     private float price = 123.321f;
-    IngredientType type;
+    IngredientType test;
 
     @Before
-    public void before() {
-        ingredient = new Ingredient(type, name, price);
+    public void setUp() {
+        ingredient = new Ingredient(test, name, price);
     }
 
     @Test
@@ -29,6 +29,6 @@ public class IngredientTest {
 
     @Test
     public void getType() {
-        assertEquals("Не верный тип ингредиента", type, ingredient.getType());
+        assertEquals("Не верное название типа ингредиента", test, ingredient.getType());
     }
 }
