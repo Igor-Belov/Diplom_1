@@ -1,0 +1,125 @@
+package praktikum;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.mockito.Mockito;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
+@RunWith(Parameterized.class)
+public class BurgerParamTest {
+
+    private final Bun bun;
+    private final List<Ingredient> ingredients;
+    private final float expectedPrice;
+    private final String expectedReceipt;
+
+    public BurgerParamTest(Bun bun, List<Ingredient> ingredients, float expectedPrice, String expectedReceipt) {
+        this.bun = bun;
+        this.ingredients = ingredients;
+        this.expectedPrice = expectedPrice;
+        this.expectedReceipt = expectedReceipt;
+    }
+
+    @Parameterized.Parameters
+    public static Collection<Object[]> data() {
+        // Создаем стабы для булочек и ингредиентов
+        Bun testBunRed = Mockito.mock(Bun.class);
+        when(testBunRed.getName()).thenReturn("Тестовый красный хлеб");
+        when(testBunRed.getPrice()).thenReturn(0.1f);
+
+        Bun testBunGreen = Mockito.mock(Bun.class);
+        when(testBunGreen.getName()).thenReturn("Тестовый зеленый хлеб");
+        when(testBunGreen.getPrice()).thenReturn(1.2f);
+
+        Ingredient testMeat = Mockito.mock(Ingredient.class);
+        when(testMeat.getName()).thenReturn("Тестовое мясо");
+        when(testMeat.getPrice()).thenReturn(10.3f);
+        when(testMeat.getType()).thenReturn(IngredientType.FILLING);
+
+        Ingredient testCheese = Mockito.mock(Ingredient.class);
+        when(testCheese.getName()).thenReturn("Тестовый сыр");
+        when(testCheese.getPrice()).thenReturn(100.4f);
+        when(testCheese.getType()).thenReturn(IngredientType.FILLING);
+
+        Ingredient testKetchup = Mockito.mock(Ingredient.class);
+        when(testKetchup.getName()).thenReturn("Тестовый кетчуп");
+        when(testKetchup.getPrice()).thenReturn(1000.5f);
+        when(testKetchup.getType()).thenReturn(IngredientType.SAUCE);
+
+        Ingredient testMustard = Mockito.mock(Ingredient.class);
+        when(testMustard.getName()).thenReturn("Тестовая горчица");
+        when(testMustard.getPrice()).thenReturn(10000.6f);
+        when(testMustard.getType()).thenReturn(IngredientType.SAUCE);
+
+        return Arrays.asList(new Object[][]{
+                // Булочка: Тестовый красный хлеб, ингредиенты: нет, ожидаемая цена: 0,2, ожидаемый чек
+                {
+                        testBunRed,
+                        Arrays.asList(),
+                        0.2f,
+                        "(==== Тестовый красный хлеб ====)\r\n(==== Тестовый красный хлеб ====)\r\n\r\nPrice: 0,200000\r\n"
+                },
+
+                // Булочка: Тестовый зеленый хлеб, ингредиенты: Тестовое мясо, ожидаемая цена: 12,7, ожидаемый чек
+                {
+                        testBunGreen,
+                        Arrays.asList(testMeat),
+                        12.7f,
+                        "(==== Тестовый зеленый хлеб ====)\r\n= filling Тестовое мясо =\r\n(==== Тестовый зеленый хлеб ====)\r\n\r\nPrice: 12,700000\r\n"
+                },
+
+
+                // Булочка: Тестовый зеленый хлеб, ингредиенты: Тестовый кетчуп, ожидаемая цена: 1002.9, ожидаемый чек
+                {
+                        testBunGreen,
+                        Arrays.asList(testKetchup),
+                        1002.9f,
+                        "(==== Тестовый зеленый хлеб ====)\r\n= sauce Тестовый кетчуп =\r\n(==== Тестовый зеленый хлеб ====)\r\n\r\nPrice: 1002.900000\r\n"
+                },
+
+                // Булочка: Тестовый красный хлеб, ингредиенты:
+                // Тестовая горчица, Тестовая горчица, Тестовая горчица, Тестовый сыр, Тестовый сыр, Тестовый сыр, Тестовый кетчуп, Тестовый кетчуп, Тестовая горчица, Тестовое мясо, Тестовое мясо, Тестовый сыр,
+                // ожидаемая цена: 32425,2, ожидаемый чек
+                {
+                        testBunRed,
+                        Arrays.asList(testMustard,testMustard,testCheese,testCheese,testCheese,testKetchup,testKetchup,testMustard,testMeat,testMeat,testCheese),
+                        32425.2f,
+                        "(==== Тестовый красный хлеб ====)\r\n= sauce Тестовая горчица =\r\n= sauce Тестовая горчица =" +
+                                "\r\n= filling Тестовый сыр =\r\n= filling Тестовый сыр =\r\n= filling Тестовый сыр =\r\n= sauce Тестовый кетчуп =\r\n= sauce Тестовый кетчуп =" +
+                                "\r\n= sauce Тестовая горчица =\r\n= filling Тестовое мясо =\r\n= filling Тестовое мясо =\r\n= filling Тестовый сыр =\r\n(==== Тестовый красный хлеб ====)\r\n\r\nPrice: 32425.2000000\r\n"
+                }
+        });
+    }
+
+    //Из-за особенностей обработки float есть проблемы с расчетом цен. Баг критичный - может привести к финансовым проблемам компании.
+    @Test
+    public void testGetPrice() {
+        Burger burger = new Burger();
+        burger.setBuns(bun);
+        for (Ingredient ingredient : ingredients) {
+            burger.addIngredient(ingredient);
+        }
+        System.out.println(expectedPrice);
+        System.out.println(burger.getPrice());
+
+        assertEquals(expectedPrice, burger.getPrice(), 1.001);
+    }
+
+    //Из-за особенностей обработки float есть проблемы с расчетом цен. Баг может привести к финансовым проблемам компании.
+    @Test
+    public void testGetReceipt() {
+        Burger burger = new Burger();
+        burger.setBuns(bun);
+        for (Ingredient ingredient : ingredients) {
+            burger.addIngredient(ingredient);
+        }
+        assertEquals(expectedReceipt, burger.getReceipt());
+    }
+}
